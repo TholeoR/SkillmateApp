@@ -23,6 +23,19 @@ export async function ensureBucketExists() {
   if (!exists) {
     await minio.makeBucket(IMAGE_BUCKET);
   }
+
+  const publicReadPolicy = {
+    Version: "2012-10-17",
+    Statement: [
+      {
+        Effect: "Allow",
+        Principal: { AWS: ["*"] },
+        Action: ["s3:GetObject"],
+        Resource: [`arn:aws:s3:::${IMAGE_BUCKET}/*`],
+      },
+    ],
+  };
+  await minio.setBucketPolicy(IMAGE_BUCKET, JSON.stringify(publicReadPolicy));
 }
 
 export function publicImageUrl(objectName: string): string {
